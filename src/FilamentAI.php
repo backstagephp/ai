@@ -2,18 +2,17 @@
 
 namespace Vormkracht10\FilamentAI;
 
-use Filament\Forms\Set;
+use EchoLabs\Prism\Exceptions\PrismException;
 use EchoLabs\Prism\Prism;
-use EchoLabs\Prism\Enums\Provider;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Field;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use EchoLabs\Prism\Exceptions\PrismException;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 
 class FilamentAI
 {
@@ -32,7 +31,7 @@ class FilamentAI
                                 ->label('Model')
                                 ->options(
                                     collect(config('filament-ai.providers'))
-                                        ->mapWithKeys(fn($provider, $model) => [
+                                        ->mapWithKeys(fn ($provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
@@ -64,12 +63,12 @@ class FilamentAI
                                         ->suffixAction(
                                             Action::make('increase')
                                                 ->icon('heroicon-o-plus')
-                                                ->action(fn(Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
+                                                ->action(fn (Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
                                         ),
                                 ])
                                 ->columns(2)
                                 ->collapsed()
-                                ->collapsible()
+                                ->collapsible(),
                         ])
                         ->action(function ($data) use ($component, $set) {
                             try {
