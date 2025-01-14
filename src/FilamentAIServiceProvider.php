@@ -21,7 +21,7 @@ class FilamentAIServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('vormkracht10/filament-ai');
             });
 
-        if (file_exists($package->basePath("/../config/ai.php"))) {
+        if (file_exists($package->basePath('/../config/ai.php'))) {
             $package->hasConfigFile();
         }
 
