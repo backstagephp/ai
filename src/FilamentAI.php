@@ -18,24 +18,9 @@ class FilamentAI
             return $this->hintAction(
                 function (Set $set, Field $component) use ($prompt) {
                     return Action::make('ai')
-                        ->icon(config('filament-ai.icon'))
-                        ->label(config('filament-ai.label'))
+                        ->icon(config('filament-ai::icon'))
+                        ->label(config('filament-ai::label'))
                         ->form([
-                            Section::make([
-                                TextInput::make('max_tokens')
-                                    ->label('Max tokens')
-                                    ->default(300)
-                                    ->numeric(),
-
-                                TextInput::make('temperature')
-                                    ->numeric()
-                                    ->label('Temperature')
-                                    ->default(0.7)
-                                    ->maxValue(1)
-                                    ->minValue(0)
-                                    ->step('0.1'),
-                            ])->columns(2),
-
                             Textarea::make('prompt')
                                 ->label('Prompt')
                                 ->default($prompt),
