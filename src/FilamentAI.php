@@ -3,13 +3,12 @@
 namespace Vormkracht10\FilamentAI;
 
 use Closure;
-use Filament\Forms\Components\Card;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Forms\Components\Actions\Action;
 
 class FilamentAI
 {
@@ -27,7 +26,7 @@ class FilamentAI
                                     ->label('Max tokens')
                                     ->default(300)
                                     ->numeric(),
-         
+
                                 TextInput::make('temperature')
                                     ->numeric()
                                     ->label('Temperature')
@@ -36,7 +35,7 @@ class FilamentAI
                                     ->minValue(0)
                                     ->step('0.1'),
                             ])->columns(2),
-         
+
                             Textarea::make('prompt')
                                 ->label('Prompt')
                                 ->default($prompt),
@@ -50,9 +49,9 @@ class FilamentAI
                                 //     'max_tokens' => (int)$data['max_tokens'],
                                 //     'temperature' => (float)$data['temperature'],
                                 // ]);
-         
+
                                 $generatedText = 'Bla bla bla';
-         
+
                                 $set($component->getName(), $generatedText);
                             } catch (\Throwable $exception) {
                                 Notification::make()
