@@ -2,13 +2,13 @@
 
 namespace Vormkracht10\FilamentAI;
 
-use Closure;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Set;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\Actions\Action;
 
 class FilamentAI
 {
@@ -16,10 +16,10 @@ class FilamentAI
     {
         Field::macro('withAI', function ($prompt = null) {
             return $this->hintAction(
-                function (Closure $set, Field $component) use ($prompt) {
+                function (Set $set, Field $component) use ($prompt) {
                     return Action::make('ai')
-                        ->icon('heroicon-o-sparkles')
-                        ->label('Generate with AI')
+                        ->icon(config('filament-ai.icon'))
+                        ->label(config('filament-ai.label'))
                         ->form([
                             Section::make([
                                 TextInput::make('max_tokens')
@@ -40,7 +40,7 @@ class FilamentAI
                                 ->label('Prompt')
                                 ->default($prompt),
                         ])
-                        ->modalSubmitButton('Generate')
+                        ->modalSubmitActionLabel('Generate')
                         ->action(function ($data) use ($component, $set) {
                             try {
                                 // $result = OpenAI::completions()->create([
