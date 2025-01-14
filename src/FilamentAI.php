@@ -2,16 +2,14 @@
 
 namespace Vormkracht10\FilamentAI;
 
-use Filament\Forms\Set;
-use EchoLabs\Prism\Prism;
 use EchoLabs\Prism\Enums\Provider;
-use Filament\Forms\Components\Field;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use EchoLabs\Prism\Exceptions\PrismException;
+use EchoLabs\Prism\Prism;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Field;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Set;
+use Filament\Notifications\Notification;
 
 class FilamentAI
 {
