@@ -3,11 +3,14 @@
 namespace Vormkracht10\FilamentAI;
 
 use Filament\Forms\Set;
+use EchoLabs\Prism\Prism;
+use EchoLabs\Prism\Enums\Provider;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use EchoLabs\Prism\Exceptions\PrismException;
 use Filament\Forms\Components\Actions\Action;
 
 class FilamentAI
@@ -18,27 +21,25 @@ class FilamentAI
             return $this->hintAction(
                 function (Set $set, Field $component) use ($prompt) {
                     return Action::make('ai')
-                        ->icon(config('filament-ai::icon'))
-                        ->label(config('filament-ai::label'))
+                        ->icon(config('filament-ai.action.icon'))
+                        ->label(config('filament-ai.action.label'))
+                        ->modalHeading(config('filament-ai.action.modal.heading'))
+                        ->modalSubmitActionLabel('Generate')
                         ->form([
                             Textarea::make('prompt')
                                 ->label('Prompt')
+                                ->autosize()
                                 ->default($prompt),
                         ])
-                        ->modalSubmitActionLabel('Generate')
                         ->action(function ($data) use ($component, $set) {
                             try {
-                                // $result = OpenAI::completions()->create([
-                                //     'model' => 'text-davinci-003',
-                                //     'prompt' => $data['prompt'],
-                                //     'max_tokens' => (int)$data['max_tokens'],
-                                //     'temperature' => (float)$data['temperature'],
-                                // ]);
+                                $response = Prism::text()
+                                    ->using(Provider::OpenAI, 'gpt-4o-mini')
+                                    ->withPrompt($data['prompt'])
+                                    ->generate();
 
-                                $generatedText = 'Bla bla bla';
-
-                                $set($component->getName(), $generatedText);
-                            } catch (\Throwable $exception) {
+                                $set($component->getName(), $response->text);
+                            } catch (PrismException $exception) {
                                 Notification::make()
                                     ->title('Text generation failed')
                                     ->body('Error: ' . $exception->getMessage())
