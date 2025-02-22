@@ -16,7 +16,7 @@
     backupStaticProperties="false"
 >
     <testsuites>
-        <testsuite name="vormkracht10 Test Suite">
+        <testsuite name="backstagephp Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>

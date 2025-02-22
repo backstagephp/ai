@@ -1,16 +1,16 @@
 <?php
 
-namespace Vormkracht10\FilamentAI;
+namespace Backstage\AI;
 
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class FilamentAIServiceProvider extends PackageServiceProvider
+class AIServiceProvider extends PackageServiceProvider
 {
-    public static string $name = 'filament-ai';
+    public static string $name = 'ai';
 
-    public static string $viewNamespace = 'filament-ai';
+    public static string $viewNamespace = 'ai';
 
     public function configurePackage(Package $package): void
     {
@@ -18,10 +18,10 @@ class FilamentAIServiceProvider extends PackageServiceProvider
             ->hasInstallCommand(function (InstallCommand $command) {
                 $command
                     ->publishConfigFile()
-                    ->askToStarRepoOnGitHub('vormkracht10/filament-ai');
+                    ->askToStarRepoOnGitHub('backstagephp/ai');
             });
 
-        $configFileName = $package->shortName();
+        $configFileName = 'backstage.ai';
 
         if (file_exists($package->basePath("/../config/{$configFileName}.php"))) {
             $package->hasConfigFile();
@@ -34,7 +34,7 @@ class FilamentAIServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        FilamentAI::registerMacro();
+        AI::registerMacro();
     }
 
     /**

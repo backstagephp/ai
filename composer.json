@@ -1,21 +1,21 @@
 {
-    "name": "vormkracht10/filament-ai",
+    "name": "backstagephp/ai",
     "description": "Add a generative and assisting AI to your Filament app forms and fields.",
     "keywords": [
-        "Vormkracht10",
+        "backstage",
         "laravel",
-        "filament-ai"
+        "ai"
     ],
-    "homepage": "https://github.com/vormkracht10/filament-ai",
+    "homepage": "https://github.com/backstagephp/ai",
     "support": {
-        "issues": "https://github.com/vormkracht10/filament-ai/issues",
-        "source": "https://github.com/vormkracht10/filament-ai"
+        "issues": "https://github.com/backstagephp/ai/issues",
+        "source": "https://github.com/backstagephp/ai"
     },
     "license": "MIT",
     "authors": [
         {
             "name": "Mark van Eijk",
-            "email": "mark@vormkracht10.nl",
+            "email": "mark@backstagephp.com",
             "role": "Developer"
         }
     ],
@@ -39,13 +39,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Vormkracht10\\FilamentAI\\": "src/",
-            "Vormkracht10\\FilamentAI\\Database\\Factories\\": "database/factories/"
+            "Backstage\\AI\\": "src/",
+            "Backstage\\AI\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Vormkracht10\\FilamentAI\\Tests\\": "tests/"
+            "Backstage\\AI\\Tests\\": "tests/"
         }
     },
     "scripts": {
@@ -65,10 +65,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Vormkracht10\\FilamentAI\\FilamentAIServiceProvider"
+                "Backstage\\AI\\AIServiceProvider"
             ],
             "aliases": {
-                "FilamentAI": "Vormkracht10\\FilamentAI\\Facades\\FilamentAI"
+                "AI": "Backstage\\AI\\Facades\\AI"
             }
         }
     },

@@ -1,6 +1,6 @@
 <?php
 
-namespace Vormkracht10\FilamentAI;
+namespace Backstage\AI;
 
 use EchoLabs\Prism\Exceptions\PrismException;
 use EchoLabs\Prism\Prism;
@@ -14,7 +14,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 
-class FilamentAI
+class AI
 {
     public static function registerMacro(): void
     {
@@ -22,20 +22,20 @@ class FilamentAI
             return $this->hintAction(
                 function (Set $set, Field $component) use ($prompt) {
                     return Action::make('ai')
-                        ->icon(config('filament-ai.action.icon'))
-                        ->label(config('filament-ai.action.label'))
-                        ->modalHeading(config('filament-ai.action.modal.heading'))
+                        ->icon(config('ai.action.icon'))
+                        ->label(config('ai.action.label'))
+                        ->modalHeading(config('ai.action.modal.heading'))
                         ->modalSubmitActionLabel('Generate')
                         ->form([
                             Select::make('model')
                                 ->label('Model')
                                 ->options(
-                                    collect(config('filament-ai.providers'))
+                                    collect(config('ai.providers'))
                                         ->mapWithKeys(fn ($provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
-                                ->default(key(config('filament-ai.providers'))),
+                                ->default(key(config('ai.providers'))),
 
                             Textarea::make('prompt')
                                 ->label('Prompt')
@@ -48,7 +48,7 @@ class FilamentAI
                                     TextInput::make('temperature')
                                         ->numeric()
                                         ->label('Temperature')
-                                        ->default(config('filament-ai.configuration.temperature'))
+                                        ->default(config('ai.configuration.temperature'))
                                         ->helperText('The higher the temperature, the more creative the text')
                                         ->maxValue(1)
                                         ->minValue(0)
@@ -56,7 +56,7 @@ class FilamentAI
                                     TextInput::make('max_tokens')
                                         ->numeric()
                                         ->label('Max tokens')
-                                        ->default(config('filament-ai.configuration.max_tokens'))
+                                        ->default(config('ai.configuration.max_tokens'))
                                         ->helperText('The maximum number of tokens to generate')
                                         ->step('10')
                                         ->minValue(0)
@@ -73,7 +73,7 @@ class FilamentAI
                         ->action(function ($data) use ($component, $set) {
                             try {
                                 $response = Prism::text()
-                                    ->using(config('filament-ai.providers.' . $data['model']), $data['model'])
+                                    ->using(config('ai.providers.' . $data['model']), $data['model'])
                                     ->withPrompt($data['prompt'])
                                     ->generate();
 

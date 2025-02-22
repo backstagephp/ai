@@ -1,6 +1,6 @@
 <?php
 
-// translations for vormkracht10/FilamentAI
+// translations for backstagephp/AI
 return [
     //
 ];
