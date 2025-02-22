@@ -22,20 +22,20 @@ class AI
             return $this->hintAction(
                 function (Set $set, Field $component) use ($prompt) {
                     return Action::make('ai')
-                        ->icon(config('ai.action.icon'))
-                        ->label(config('ai.action.label'))
-                        ->modalHeading(config('ai.action.modal.heading'))
+                        ->icon(config('backstage.ai.action.icon'))
+                        ->label(config('backstage.ai.action.label'))
+                        ->modalHeading(config('backstage.ai.action.modal.heading'))
                         ->modalSubmitActionLabel('Generate')
                         ->form([
                             Select::make('model')
                                 ->label('Model')
                                 ->options(
-                                    collect(config('ai.providers'))
+                                    collect(config('backstage.ai.providers'))
                                         ->mapWithKeys(fn ($provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
-                                ->default(key(config('ai.providers'))),
+                                ->default(key(config('backstage.ai.providers'))),
 
                             Textarea::make('prompt')
                                 ->label('Prompt')
@@ -48,7 +48,7 @@ class AI
                                     TextInput::make('temperature')
                                         ->numeric()
                                         ->label('Temperature')
-                                        ->default(config('ai.configuration.temperature'))
+                                        ->default(config('backstage.ai.configuration.temperature'))
                                         ->helperText('The higher the temperature, the more creative the text')
                                         ->maxValue(1)
                                         ->minValue(0)
@@ -56,7 +56,7 @@ class AI
                                     TextInput::make('max_tokens')
                                         ->numeric()
                                         ->label('Max tokens')
-                                        ->default(config('ai.configuration.max_tokens'))
+                                        ->default(config('backstage.ai.configuration.max_tokens'))
                                         ->helperText('The maximum number of tokens to generate')
                                         ->step('10')
                                         ->minValue(0)
@@ -73,7 +73,7 @@ class AI
                         ->action(function ($data) use ($component, $set) {
                             try {
                                 $response = Prism::text()
-                                    ->using(config('ai.providers.' . $data['model']), $data['model'])
+                                    ->using(config('backstage.ai.providers.' . $data['model']), $data['model'])
                                     ->withPrompt($data['prompt'])
                                     ->generate();
 
