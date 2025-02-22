@@ -21,10 +21,8 @@ class AIServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('backstagephp/ai');
             });
 
-        $configFileName = 'backstage.ai';
-
-        if (file_exists($package->basePath("/../config/{$configFileName}.php"))) {
-            $package->hasConfigFile();
+        if (file_exists($package->basePath('/../config/backstage/ai.php'))) {
+            $package->hasConfigFile('backstage/ai');
         }
 
         if (file_exists($package->basePath('/../resources/views'))) {
