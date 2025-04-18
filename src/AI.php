@@ -2,9 +2,14 @@
 
 namespace Backstage\AI;
 
+use Backstage\AI\Events\CaptureAiRequest;
+use Backstage\AI\Facades\AI as FacadesAI;
+use EchoLabs\Prism\Enums\Provider as ProviderEnum;
 use EchoLabs\Prism\Exceptions\PrismException;
 use EchoLabs\Prism\Prism;
+use EchoLabs\Prism\Text\Response;
 use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
@@ -42,6 +47,11 @@ class AI
                                 ->autosize()
                                 ->default($prompt),
 
+                            Checkbox::make('use_existing')
+                                ->label(__('Use existing text'))
+                                ->default(false)
+                                ->helperText(__('If checked, the existing text will be used as context for the AI.')),
+
                             Section::make('configuration')
                                 ->heading('Configuration')
                                 ->schema([
@@ -71,11 +81,25 @@ class AI
                                 ->collapsible(),
                         ])
                         ->action(function ($data) use ($component, $set) {
+                            $AIquery = str('')
+                                ->prepend("Respond only with the essential answer—no extra commentary.\n");
+
+                            if ($data['use_existing']) {
+                                $AIquery = $AIquery->append("If I mention the existing text, use it; otherwise, ignore it.\n");
+                            }
+
+                            if ($data['use_existing']) {
+                                $AIquery = $AIquery->append('This is the existing text: ' . $component->getState() . "\n");
+                            }
+
+                            $AIquery = $AIquery->append('This is my query: ' . $data['prompt']);
+
                             try {
-                                $response = Prism::text()
-                                    ->using(config('backstage.ai.providers.' . $data['model']), $data['model'])
-                                    ->withPrompt($data['prompt'])
-                                    ->generate();
+                                $response = FacadesAI::text(
+                                    config('backstage.ai.providers')[$data['model']],
+                                    $data['model'],
+                                    $AIquery
+                                );
 
                                 $set($component->getName(), $response->text);
                             } catch (PrismException $exception) {
@@ -89,5 +113,17 @@ class AI
                 }
             );
         });
+    }
+
+    public function text(ProviderEnum $provider, string $model, string $prompt): Response
+    {
+        $response = Prism::text()
+            ->using($provider, $model)
+            ->withPrompt($prompt)
+            ->generate();
+
+        event(new CaptureAiRequest($response));
+
+        return $response;
     }
 }
