@@ -4,10 +4,10 @@ namespace Backstage\AI;
 
 use Backstage\AI\Events\CaptureAiRequest;
 use Backstage\AI\Facades\AI as FacadesAI;
-use EchoLabs\Prism\Enums\Provider as ProviderEnum;
-use EchoLabs\Prism\Exceptions\PrismException;
-use EchoLabs\Prism\Prism;
-use EchoLabs\Prism\Text\Response;
+use Prism\Prism\Enums\Provider as ProviderEnum;
+use Prism\Prism\Exceptions\PrismException;
+use Prism\Prism\Prism;
+use Prism\Prism\Text\Response;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;

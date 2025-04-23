@@ -70,10 +70,10 @@ class RecordPrismResponse
             }
 
             foreach ($step->messages ?? [] as $msg) {
-                if ($msg instanceof \EchoLabs\Prism\ValueObjects\Messages\UserMessage) {
+                if ($msg instanceof \Prism\Prism\ValueObjects\Messages\UserMessage) {
                     $role = 'user';
                     $content = $msg->text();
-                } elseif ($msg instanceof \EchoLabs\Prism\ValueObjects\Messages\AssistantMessage) {
+                } elseif ($msg instanceof \Prism\Prism\ValueObjects\Messages\AssistantMessage) {
                     $role = 'assistant';
                     $content = $msg->content;
                 }
