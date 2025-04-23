@@ -4,10 +4,6 @@ namespace Backstage\AI;
 
 use Backstage\AI\Events\CaptureAiRequest;
 use Backstage\AI\Facades\AI as FacadesAI;
-use Prism\Prism\Enums\Provider as ProviderEnum;
-use Prism\Prism\Exceptions\PrismException;
-use Prism\Prism\Prism;
-use Prism\Prism\Text\Response;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
@@ -18,6 +14,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Prism\Prism\Enums\Provider as ProviderEnum;
+use Prism\Prism\Exceptions\PrismException;
+use Prism\Prism\Prism;
+use Prism\Prism\Text\Response;
 
 class AI
 {

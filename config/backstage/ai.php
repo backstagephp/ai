@@ -2,7 +2,6 @@
 
 use Prism\Prism\Enums\Provider;
 
-
 return [
     'providers' => [
         'gpt-4o-mini' => Provider::OpenAI,
