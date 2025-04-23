@@ -2,7 +2,7 @@
 
 namespace Backstage\AI\Events;
 
-use Prism\Prism\Text\Response;
+use EchoLabs\Prism\Text\Response;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;

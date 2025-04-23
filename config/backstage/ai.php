@@ -1,6 +1,6 @@
 <?php
 
-use Prism\Prism\Enums\Provider;
+use EchoLabs\Prism\Enums\Provider;
 
 
 return [
