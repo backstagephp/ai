@@ -2,8 +2,6 @@
 
 namespace Backstage\AI;
 
-use Prism\Prism\Exceptions\PrismException;
-use Prism\Prism\Prism;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Section;
@@ -13,6 +11,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Prism\Prism\Exceptions\PrismException;
+use Prism\Prism\Prism;
 
 class AI
 {
