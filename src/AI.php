@@ -2,8 +2,8 @@
 
 namespace Backstage\AI;
 
-use EchoLabs\Prism\Exceptions\PrismException;
-use EchoLabs\Prism\Prism;
+use Prism\Prism\Exceptions\PrismException;
+use Prism\Prism\Prism;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Section;
@@ -75,7 +75,7 @@ class AI
                                 $response = Prism::text()
                                     ->using(config('backstage.ai.providers.' . $data['model']), $data['model'])
                                     ->withPrompt($data['prompt'])
-                                    ->generate();
+                                    ->asText();
 
                                 $set($component->getName(), $response->text);
                             } catch (PrismException $exception) {
