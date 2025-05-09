@@ -16,10 +16,11 @@ class AI
 {
     public static function registerMacro(): void
     {
-        Forms\Components\Field::macro('withAI', function ($prompt = null) {
-            return $this->hintAction(
-                function (Set $set, Forms\Components\Field $component) use ($prompt) {
+        Forms\Components\Field::macro('withAI', function ($prompt = null, $hint = true) {
+            return $this->{$hint ? 'hintAction' : 'suffixAction'}(
+                function (Set $set, Forms\Components\Field $component) use ($prompt, $hint) {
                     return Action::make('ai')
+                        ->visible(fn($operation) => $operation !== 'view')
                         ->icon(config('backstage.ai.action.icon'))
                         ->label(config('backstage.ai.action.label'))
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
