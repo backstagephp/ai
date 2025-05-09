@@ -2,15 +2,14 @@
 
 namespace Backstage\AI;
 
-use EchoLabs\Prism\ValueObjects\Messages\SystemMessage as MessagesSystemMessage;
-use Prism\Prism\ValueObjects\Messages\SystemMessage;
+use Filament\Forms;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Forms;
 use Filament\Notifications\Notification;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Prism;
+use Prism\Prism\ValueObjects\Messages\SystemMessage;
 
 class AI
 {
@@ -18,9 +17,9 @@ class AI
     {
         Forms\Components\Field::macro('withAI', function ($prompt = null, $hint = true) {
             return $this->{$hint ? 'hintAction' : 'suffixAction'}(
-                function (Set $set, Forms\Components\Field $component) use ($prompt, $hint) {
+                function (Set $set, Forms\Components\Field $component) use ($prompt) {
                     return Action::make('ai')
-                        ->visible(fn($operation) => $operation !== 'view')
+                        ->visible(fn ($operation) => $operation !== 'view')
                         ->icon(config('backstage.ai.action.icon'))
                         ->label(config('backstage.ai.action.label'))
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
@@ -30,7 +29,7 @@ class AI
                                 ->label('Model')
                                 ->options(
                                     collect(config('backstage.ai.providers'))
-                                        ->mapWithKeys(fn($provider, $model) => [
+                                        ->mapWithKeys(fn ($provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
@@ -63,7 +62,7 @@ class AI
                                         ->suffixAction(
                                             Action::make('increase')
                                                 ->icon('heroicon-o-plus')
-                                                ->action(fn(Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
+                                                ->action(fn (Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
                                         ),
                                 ])
                                 ->columns(2)
@@ -110,7 +109,7 @@ class AI
             $instructions = [
                 new SystemMessage('You must return pure HTML as output.'),
                 new SystemMessage('This is the field that will implement the HTML (state) that you will return: https://filamentphp.com/docs/3.x/forms/fields/rich-editor.'),
-                new SystemMessage('Do not return any <h1> tags.')
+                new SystemMessage('Do not return any <h1> tags.'),
             ];
         }
 
@@ -149,7 +148,6 @@ class AI
                 new SystemMessage('You must return the key of the option as output.'),
             ];
         }
-
 
         return array_merge($baseInstructions, $instructions);
     }
