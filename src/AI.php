@@ -15,7 +15,6 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Prism;
-use Prism\Prism\ValueObjects\Messages\SystemMessage;
 
 class AI
 {
@@ -134,7 +133,6 @@ class AI
             default => [],
         };
 
-      
         return array_merge($baseInstructions, $componentInstructions);
     }
 }
