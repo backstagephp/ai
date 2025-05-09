@@ -108,7 +108,9 @@ class AI
 
         if ($component instanceof Forms\Components\RichEditor) {
             $instructions = [
-                new SystemMessage('You must return HTML as output.')
+                new SystemMessage('You must return pure HTML as output.'),
+                new SystemMessage('This is the field that will implement the HTML (state) that you will return: https://filamentphp.com/docs/3.x/forms/fields/rich-editor.'),
+                new SystemMessage('Do not return any <h1> tags.')
             ];
         }
 
@@ -118,6 +120,36 @@ class AI
                 new SystemMessage("Don\'t return the markdown with markdown syntax like opening the markdown and closing it. For example: ```markdown... ```"),
             ];
         }
+
+        if ($component instanceof Forms\Components\DateTimePicker) {
+            $format = $component->getFormat();
+
+            $instructions = [
+                new SystemMessage('You must return a date as output.'),
+                new SystemMessage('The date format is: ' . $format),
+            ];
+        }
+
+        if ($component instanceof Forms\Components\TextInput && $component->isPassword()) {
+            $instructions = [
+                new SystemMessage('You must return a password as output.'),
+            ];
+        }
+
+        if ($component instanceof Forms\Components\TextInput && $component->isEmail()) {
+            $instructions = [
+                new SystemMessage('You must return an email as output.'),
+            ];
+        }
+
+        if ($component instanceof Forms\Components\Select) {
+            $instructions = [
+                new SystemMessage('You must return a value from the select as output.'),
+                new SystemMessage('The options are: ' . json_encode($component->getOptions())),
+                new SystemMessage('You must return the key of the option as output.'),
+            ];
+        }
+
 
         return array_merge($baseInstructions, $instructions);
     }
