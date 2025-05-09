@@ -2,19 +2,19 @@
 
 namespace Backstage\AI;
 
+use Backstage\AI\Prism\SystemMessages\Forms\Components\BaseInstructions;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\DateTimePicker;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\MarkdownEditor;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\RichEditor;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\Select;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\TextInput;
 use Filament\Forms;
-use Prism\Prism\Prism;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Prism\Prism\Exceptions\PrismException;
-use Filament\Forms\Components\Actions\Action;
-use Backstage\AI\Prism\SystemMessages\Forms\Components\Select;
-use Backstage\AI\Prism\SystemMessages\Forms\Components\TextInput;
-use Backstage\AI\Prism\SystemMessages\Forms\Components\RichEditor;
-use Backstage\AI\Prism\SystemMessages\Forms\Components\DateTimePicker;
-use Backstage\AI\Prism\SystemMessages\Forms\Components\MarkdownEditor;
-use Backstage\AI\Prism\SystemMessages\Forms\Components\BaseInstructions;
+use Prism\Prism\Prism;
 
 class AI
 {
@@ -22,9 +22,9 @@ class AI
     {
         Forms\Components\Field::macro('withAI', function ($prompt = null, $hint = true) {
             return $this->{$hint ? 'hintAction' : 'suffixAction'}(
-                function (Set $set, Forms\Components\Field $component) use ($prompt, $hint) {
+                function (Set $set, Forms\Components\Field $component) use ($prompt) {
                     return Action::make('ai')
-                        ->visible(fn($operation) => $operation !== 'view')
+                        ->visible(fn ($operation) => $operation !== 'view')
                         ->icon(config('backstage.ai.action.icon'))
                         ->label(config('backstage.ai.action.label'))
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
@@ -34,7 +34,7 @@ class AI
                                 ->label('Model')
                                 ->options(
                                     collect(config('backstage.ai.providers'))
-                                        ->mapWithKeys(fn($provider, $model) => [
+                                        ->mapWithKeys(fn ($provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
@@ -67,7 +67,7 @@ class AI
                                         ->suffixAction(
                                             Action::make('increase')
                                                 ->icon('heroicon-o-plus')
-                                                ->action(fn(Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
+                                                ->action(fn (Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
                                         ),
                                 ])
                                 ->columns(2)
@@ -96,7 +96,6 @@ class AI
                                     return;
                                 }
 
-
                                 $set($component->getName(), $response->text);
                             } catch (PrismException $exception) {
                                 Notification::make()
@@ -111,10 +110,10 @@ class AI
         });
     }
 
-
     /**
      * Checking the type of the component and returning the specific instructions for each type.
      * Allowed types are:
+     *
      * @var Forms\Components\RichEditor
      * @var Forms\Components\MarkdownEditor
      * @var Forms\Components\DateTimePicker

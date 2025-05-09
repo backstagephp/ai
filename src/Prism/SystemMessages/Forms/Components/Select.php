@@ -13,7 +13,7 @@ class Select
             new SystemMessage('The options are: ' . json_encode($component->getOptions())),
             new SystemMessage('You must return the key of the option as output.'),
         ];
-        
+
         return $instructions;
     }
 }
