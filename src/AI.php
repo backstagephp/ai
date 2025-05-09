@@ -13,6 +13,7 @@ use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Prism\Prism\Enums\Provider;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Prism;
 
@@ -34,7 +35,7 @@ class AI
                                 ->label(__('AI Model'))
                                 ->options(
                                     collect(config('backstage.ai.providers'))
-                                        ->mapWithKeys(fn ($provider, $model) => [
+                                        ->mapWithKeys(fn (Provider $provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
