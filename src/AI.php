@@ -2,14 +2,15 @@
 
 namespace Backstage\AI;
 
-use Filament\Forms;
+use EchoLabs\Prism\ValueObjects\Messages\SystemMessage as MessagesSystemMessage;
+use Prism\Prism\ValueObjects\Messages\SystemMessage;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Forms;
 use Filament\Notifications\Notification;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Prism;
-use Prism\Prism\ValueObjects\Messages\SystemMessage;
 
 class AI
 {
@@ -17,9 +18,9 @@ class AI
     {
         Forms\Components\Field::macro('withAI', function ($prompt = null, $hint = true) {
             return $this->{$hint ? 'hintAction' : 'suffixAction'}(
-                function (Set $set, Forms\Components\Field $component) use ($prompt) {
+                function (Set $set, Forms\Components\Field $component) use ($prompt, $hint) {
                     return Action::make('ai')
-                        ->visible(fn ($operation) => $operation !== 'view')
+                        ->visible(fn($operation) => $operation !== 'view')
                         ->icon(config('backstage.ai.action.icon'))
                         ->label(config('backstage.ai.action.label'))
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
@@ -29,7 +30,7 @@ class AI
                                 ->label('Model')
                                 ->options(
                                     collect(config('backstage.ai.providers'))
-                                        ->mapWithKeys(fn ($provider, $model) => [
+                                        ->mapWithKeys(fn($provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
@@ -62,7 +63,7 @@ class AI
                                         ->suffixAction(
                                             Action::make('increase')
                                                 ->icon('heroicon-o-plus')
-                                                ->action(fn (Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
+                                                ->action(fn(Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
                                         ),
                                 ])
                                 ->columns(2)
@@ -107,7 +108,9 @@ class AI
 
         if ($component instanceof Forms\Components\RichEditor) {
             $instructions = [
-                new SystemMessage('You must return HTML as output.'),
+                new SystemMessage('You must return pure HTML as output.'),
+                new SystemMessage('This is the field that will implement the HTML (state) that you will return: https://filamentphp.com/docs/3.x/forms/fields/rich-editor.'),
+                new SystemMessage('Do not return any <h1> tags.')
             ];
         }
 
@@ -117,6 +120,36 @@ class AI
                 new SystemMessage("Don\'t return the markdown with markdown syntax like opening the markdown and closing it. For example: ```markdown... ```"),
             ];
         }
+
+        if ($component instanceof Forms\Components\DateTimePicker) {
+            $format = $component->getFormat();
+
+            $instructions = [
+                new SystemMessage('You must return a date as output.'),
+                new SystemMessage('The date format is: ' . $format),
+            ];
+        }
+
+        if ($component instanceof Forms\Components\TextInput && $component->isPassword()) {
+            $instructions = [
+                new SystemMessage('You must return a password as output.'),
+            ];
+        }
+
+        if ($component instanceof Forms\Components\TextInput && $component->isEmail()) {
+            $instructions = [
+                new SystemMessage('You must return an email as output.'),
+            ];
+        }
+
+        if ($component instanceof Forms\Components\Select) {
+            $instructions = [
+                new SystemMessage('You must return a value from the select as output.'),
+                new SystemMessage('The options are: ' . json_encode($component->getOptions())),
+                new SystemMessage('You must return the key of the option as output.'),
+            ];
+        }
+
 
         return array_merge($baseInstructions, $instructions);
     }
