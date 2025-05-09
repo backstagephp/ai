@@ -2,14 +2,12 @@
 
 namespace Backstage\AI;
 
+use EchoLabs\Prism\ValueObjects\Messages\SystemMessage as MessagesSystemMessage;
+use Prism\Prism\ValueObjects\Messages\SystemMessage;
 use Filament\Forms\Components\Actions\Action;
-use Filament\Forms\Components\Field;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Forms;
 use Filament\Notifications\Notification;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Prism;
@@ -18,34 +16,34 @@ class AI
 {
     public static function registerMacro(): void
     {
-        Field::macro('withAI', function ($prompt = null) {
+        Forms\Components\Field::macro('withAI', function ($prompt = null) {
             return $this->hintAction(
-                function (Set $set, Field $component) use ($prompt) {
+                function (Set $set, Forms\Components\Field $component) use ($prompt) {
                     return Action::make('ai')
                         ->icon(config('backstage.ai.action.icon'))
                         ->label(config('backstage.ai.action.label'))
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
                         ->modalSubmitActionLabel('Generate')
                         ->form([
-                            Select::make('model')
+                            Forms\Components\Select::make('model')
                                 ->label('Model')
                                 ->options(
                                     collect(config('backstage.ai.providers'))
-                                        ->mapWithKeys(fn ($provider, $model) => [
+                                        ->mapWithKeys(fn($provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
                                 ->default(key(config('backstage.ai.providers'))),
 
-                            Textarea::make('prompt')
+                            Forms\Components\Textarea::make('prompt')
                                 ->label('Prompt')
                                 ->autosize()
                                 ->default($prompt),
 
-                            Section::make('configuration')
+                            Forms\Components\Section::make('configuration')
                                 ->heading('Configuration')
                                 ->schema([
-                                    TextInput::make('temperature')
+                                    Forms\Components\TextInput::make('temperature')
                                         ->numeric()
                                         ->label('Temperature')
                                         ->default(config('backstage.ai.configuration.temperature'))
@@ -53,7 +51,8 @@ class AI
                                         ->maxValue(1)
                                         ->minValue(0)
                                         ->step('0.1'),
-                                    TextInput::make('max_tokens')
+
+                                    Forms\Components\TextInput::make('max_tokens')
                                         ->numeric()
                                         ->label('Max tokens')
                                         ->default(config('backstage.ai.configuration.max_tokens'))
@@ -63,7 +62,7 @@ class AI
                                         ->suffixAction(
                                             Action::make('increase')
                                                 ->icon('heroicon-o-plus')
-                                                ->action(fn (Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
+                                                ->action(fn(Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
                                         ),
                                 ])
                                 ->columns(2)
@@ -71,10 +70,13 @@ class AI
                                 ->collapsible(),
                         ])
                         ->action(function ($data) use ($component, $set) {
+                            $systemPrompts = AI::getSystemPrompts($data, $component);
+
                             try {
                                 $response = Prism::text()
                                     ->using(config('backstage.ai.providers.' . $data['model']), $data['model'])
                                     ->withPrompt($data['prompt'])
+                                    ->withSystemPrompts($systemPrompts)
                                     ->asText();
 
                                 $set($component->getName(), $response->text);
@@ -89,5 +91,33 @@ class AI
                 }
             );
         });
+    }
+
+    public static function getSystemPrompts($data, Forms\Components\Field $component): array
+    {
+        $baseInstructions = [
+            new SystemMessage('You are a helpful assistant. That\'s inside a Filament form field. This is the state of the field: ' . json_encode($component->getState())),
+            new SystemMessage('You must only return the value of the field.'),
+            new SystemMessage('No yapping, no explanations, no extra text.'),
+        ];
+
+        $instructions = [
+            new SystemMessage('You must return a string value as output.'),
+        ];
+
+        if ($component instanceof Forms\Components\RichEditor) {
+            $instructions = [
+                new SystemMessage('You must return HTML as output.')]
+            ;
+        }
+
+        if ($component instanceof Forms\Components\MarkdownEditor) {
+            $instructions = [
+                new SystemMessage('You must return Markdown as output. This is the field that will implement the Markdown (state) that you will return: https://filamentphp.com/docs/3.x/forms/fields/markdown-editor.'),
+                new SystemMessage("Don\'t return the markdown with markdown syntax like opening the markdown and closing it. For example: ```markdown... ```"),
+            ];
+        }
+
+        return array_merge($baseInstructions, $instructions);
     }
 }
