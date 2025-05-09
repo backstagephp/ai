@@ -28,10 +28,10 @@ class AI
                         ->icon(config('backstage.ai.action.icon'))
                         ->label(config('backstage.ai.action.label'))
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
-                        ->modalSubmitActionLabel('Generate')
+                        ->modalSubmitActionLabel(__('Generate'))
                         ->form([
                             Forms\Components\Select::make('model')
-                                ->label('Model')
+                                ->label(__('AI Model'))
                                 ->options(
                                     collect(config('backstage.ai.providers'))
                                         ->mapWithKeys(fn ($provider, $model) => [
@@ -41,16 +41,16 @@ class AI
                                 ->default(key(config('backstage.ai.providers'))),
 
                             Forms\Components\Textarea::make('prompt')
-                                ->label('Prompt')
+                                ->label(__('Instructions'))
                                 ->autosize()
                                 ->default($prompt),
 
                             Forms\Components\Section::make('configuration')
-                                ->heading('Configuration')
+                                ->heading(__('Configuration'))
                                 ->schema([
                                     Forms\Components\TextInput::make('temperature')
                                         ->numeric()
-                                        ->label('Temperature')
+                                        ->label(__('AI Temperature'))
                                         ->default(config('backstage.ai.configuration.temperature'))
                                         ->helperText('The higher the temperature, the more creative the text')
                                         ->maxValue(1)
@@ -59,7 +59,7 @@ class AI
 
                                     Forms\Components\TextInput::make('max_tokens')
                                         ->numeric()
-                                        ->label('Max tokens')
+                                        ->label(__('Max Tokens'))
                                         ->default(config('backstage.ai.configuration.max_tokens'))
                                         ->helperText('The maximum number of tokens to generate')
                                         ->step('10')
