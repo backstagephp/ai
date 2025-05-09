@@ -32,7 +32,7 @@ class AIServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        AI::registerMacro();
+        AI::registerFormMacro();
     }
 
     /**

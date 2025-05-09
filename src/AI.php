@@ -2,19 +2,23 @@
 
 namespace Backstage\AI;
 
-use EchoLabs\Prism\ValueObjects\Messages\SystemMessage as MessagesSystemMessage;
-use Prism\Prism\ValueObjects\Messages\SystemMessage;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Forms;
+use Prism\Prism\Prism;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
-use Filament\Forms;
 use Filament\Notifications\Notification;
 use Prism\Prism\Exceptions\PrismException;
-use Prism\Prism\Prism;
+use Filament\Forms\Components\Actions\Action;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\Select;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\TextInput;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\RichEditor;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\DateTimePicker;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\MarkdownEditor;
+use Backstage\AI\Prism\SystemMessages\Forms\Components\BaseInstructions;
 
 class AI
 {
-    public static function registerMacro(): void
+    public static function registerFormMacro(): void
     {
         Forms\Components\Field::macro('withAI', function ($prompt = null, $hint = true) {
             return $this->{$hint ? 'hintAction' : 'suffixAction'}(
@@ -71,7 +75,7 @@ class AI
                                 ->collapsible(),
                         ])
                         ->action(function ($data) use ($component, $set) {
-                            $systemPrompts = AI::getSystemPrompts($data, $component);
+                            $systemPrompts = AI::getSystemPrompts($component);
 
                             try {
                                 $response = Prism::text()
@@ -79,6 +83,19 @@ class AI
                                     ->withPrompt($data['prompt'])
                                     ->withSystemPrompts($systemPrompts)
                                     ->asText();
+
+                                $fieldState = $component->getState();
+
+                                if ($fieldState === $response->text) {
+                                    Notification::make()
+                                        ->title(__('AI generated text is the same as the current state'))
+                                        ->body(__('Please be more specific with your prompt or try again.'))
+                                        ->danger()
+                                        ->send();
+
+                                    return;
+                                }
+
 
                                 $set($component->getName(), $response->text);
                             } catch (PrismException $exception) {
@@ -94,63 +111,29 @@ class AI
         });
     }
 
-    public static function getSystemPrompts($data, Forms\Components\Field $component): array
+
+    /**
+     * Checking the type of the component and returning the specific instructions for each type.
+     * Allowed types are:
+     * @var Forms\Components\RichEditor
+     * @var Forms\Components\MarkdownEditor
+     * @var Forms\Components\DateTimePicker
+     * @var Forms\Components\TextInput
+     * @var Forms\Components\Select
+     */
+    public static function getSystemPrompts(Forms\Components\Field $component): array
     {
-        $baseInstructions = [
-            new SystemMessage('You are a helpful assistant. That\'s inside a Filament form field. This is the state of the field: ' . json_encode($component->getState())),
-            new SystemMessage('You must only return the value of the field.'),
-            new SystemMessage('No yapping, no explanations, no extra text.'),
-        ];
+        $baseInstructions = BaseInstructions::ask($component);
 
-        $instructions = [
-            new SystemMessage('You must return a string value as output.'),
-        ];
+        $componentInstructions = match (true) {
+            $component instanceof Forms\Components\RichEditor => RichEditor::ask($component),
+            $component instanceof Forms\Components\MarkdownEditor => MarkdownEditor::ask($component),
+            $component instanceof Forms\Components\DateTimePicker => DateTimePicker::ask($component),
+            $component instanceof Forms\Components\TextInput => TextInput::ask($component),
+            $component instanceof Forms\Components\Select => Select::ask($component),
+            default => [],
+        };
 
-        if ($component instanceof Forms\Components\RichEditor) {
-            $instructions = [
-                new SystemMessage('You must return pure HTML as output.'),
-                new SystemMessage('This is the field that will implement the HTML (state) that you will return: https://filamentphp.com/docs/3.x/forms/fields/rich-editor.'),
-                new SystemMessage('Do not return any <h1> tags.')
-            ];
-        }
-
-        if ($component instanceof Forms\Components\MarkdownEditor) {
-            $instructions = [
-                new SystemMessage('You must return Markdown as output. This is the field that will implement the Markdown (state) that you will return: https://filamentphp.com/docs/3.x/forms/fields/markdown-editor.'),
-                new SystemMessage("Don\'t return the markdown with markdown syntax like opening the markdown and closing it. For example: ```markdown... ```"),
-            ];
-        }
-
-        if ($component instanceof Forms\Components\DateTimePicker) {
-            $format = $component->getFormat();
-
-            $instructions = [
-                new SystemMessage('You must return a date as output.'),
-                new SystemMessage('The date format is: ' . $format),
-            ];
-        }
-
-        if ($component instanceof Forms\Components\TextInput && $component->isPassword()) {
-            $instructions = [
-                new SystemMessage('You must return a password as output.'),
-            ];
-        }
-
-        if ($component instanceof Forms\Components\TextInput && $component->isEmail()) {
-            $instructions = [
-                new SystemMessage('You must return an email as output.'),
-            ];
-        }
-
-        if ($component instanceof Forms\Components\Select) {
-            $instructions = [
-                new SystemMessage('You must return a value from the select as output.'),
-                new SystemMessage('The options are: ' . json_encode($component->getOptions())),
-                new SystemMessage('You must return the key of the option as output.'),
-            ];
-        }
-
-
-        return array_merge($baseInstructions, $instructions);
+        return array_merge($baseInstructions, $componentInstructions);
     }
 }
