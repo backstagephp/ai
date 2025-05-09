@@ -2,14 +2,15 @@
 
 namespace Backstage\AI;
 
-use Filament\Forms;
+use EchoLabs\Prism\ValueObjects\Messages\SystemMessage as MessagesSystemMessage;
+use Prism\Prism\ValueObjects\Messages\SystemMessage;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Forms;
 use Filament\Notifications\Notification;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Prism;
-use Prism\Prism\ValueObjects\Messages\SystemMessage;
 
 class AI
 {
@@ -28,7 +29,7 @@ class AI
                                 ->label('Model')
                                 ->options(
                                     collect(config('backstage.ai.providers'))
-                                        ->mapWithKeys(fn ($provider, $model) => [
+                                        ->mapWithKeys(fn($provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
@@ -61,7 +62,7 @@ class AI
                                         ->suffixAction(
                                             Action::make('increase')
                                                 ->icon('heroicon-o-plus')
-                                                ->action(fn (Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
+                                                ->action(fn(Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
                                         ),
                                 ])
                                 ->columns(2)
@@ -106,7 +107,8 @@ class AI
 
         if ($component instanceof Forms\Components\RichEditor) {
             $instructions = [
-                new SystemMessage('You must return HTML as output.')];
+                new SystemMessage('You must return HTML as output.')
+            ];
         }
 
         if ($component instanceof Forms\Components\MarkdownEditor) {
