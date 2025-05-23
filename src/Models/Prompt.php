@@ -3,10 +3,11 @@
 namespace Backstage\AI\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Backstage\AI\Models\Observers\PromptObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ObservedBy(PromptObserver::class)]
 class Prompt extends Model
@@ -36,6 +37,9 @@ class Prompt extends Model
         'max_tokens' => 'integer',
     ];
 
+    /**
+     * @return Authenticatable|Model|null
+     */
     public function creator()
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'creator_id');

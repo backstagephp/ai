@@ -6,7 +6,7 @@ use Backstage\AI\Models\Prompt;
 
 trait HasPrompts
 {
-    public function Prompts()
+    public function prompts()
     {
         return $this->hasMany(Prompt::class, 'creator_id', 'id');
     }
