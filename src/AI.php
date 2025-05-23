@@ -2,6 +2,7 @@
 
 namespace Backstage\AI;
 
+use Backstage\AI\Models\Prompt;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\Section;
@@ -11,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Prism\Prism\Enums\Provider;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Prism;
 
@@ -27,23 +29,41 @@ class AI
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
                         ->modalSubmitActionLabel('Generate')
                         ->form([
+                            Select::make('prompt_id')
+                                ->label(__('Prompt'))
+                                ->native(false)
+                                ->live()
+                                ->afterStateUpdated(function (Set $set, int $state) {
+                                    $designatedPrompt = Prompt::find($state);
+
+                                    if (!$designatedPrompt) {
+                                        return;
+                                    }
+
+                                    $set('model', $designatedPrompt->model);
+                                    $set('temperature', $designatedPrompt->temperature);
+                                    $set('max_tokens', $designatedPrompt->max_tokens);
+                                })
+                                ->options(fn() => Prompt::all()->pluck('name', 'id')),
+
                             Select::make('model')
                                 ->label('Model')
-                                ->options(
-                                    collect(config('backstage.ai.providers'))
-                                        ->mapWithKeys(fn ($provider, $model) => [
-                                            $model => $model . ' (' . $provider->name . ')',
-                                        ]),
-                                )
-                                ->default(key(config('backstage.ai.providers'))),
+                                ->native(false)
+                                ->visible(fn(Get $get) => $get('prompt_id') !== null)
+                                ->live()
+                                ->options(fn() => collect(config('backstage.ai.providers'))->mapWithKeys(fn($item, $key) => [ucfirst($key) => $item])),
 
                             Textarea::make('prompt')
                                 ->label('Prompt')
                                 ->autosize()
+                                ->visible(fn(Get $get) => $get('prompt_id') !== null)
+                                ->live()
                                 ->default($prompt),
 
                             Section::make('configuration')
                                 ->heading('Configuration')
+                                ->visible(fn(Get $get) => $get('prompt_id') !== null)
+                                ->live()
                                 ->schema([
                                     TextInput::make('temperature')
                                         ->numeric()
@@ -53,6 +73,7 @@ class AI
                                         ->maxValue(1)
                                         ->minValue(0)
                                         ->step('0.1'),
+
                                     TextInput::make('max_tokens')
                                         ->numeric()
                                         ->label('Max tokens')
@@ -63,7 +84,7 @@ class AI
                                         ->suffixAction(
                                             Action::make('increase')
                                                 ->icon('heroicon-o-plus')
-                                                ->action(fn (Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
+                                                ->action(fn(Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
                                         ),
                                 ])
                                 ->columns(2)
@@ -72,9 +93,19 @@ class AI
                         ])
                         ->action(function ($data) use ($component, $set) {
                             try {
+                                $providerKey = collect(config('backstage.ai.providers'))
+                                    ->filter(fn($models) => array_key_exists($data['model'], $models))
+                                    ->keys()
+                                    ->first();
+
+                                $provider = Provider::from($providerKey);
+
+                                $prompt = Prompt::find($data['prompt_id']);
+
                                 $response = Prism::text()
-                                    ->using(config('backstage.ai.providers.' . $data['model']), $data['model'])
+                                    ->using($provider, $data['model'])
                                     ->withPrompt($data['prompt'])
+                                    ->withSystemPrompt($prompt->prompt)
                                     ->asText();
 
                                 $set($component->getName(), $response->text);
