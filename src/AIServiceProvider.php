@@ -21,6 +21,10 @@ class AIServiceProvider extends PackageServiceProvider
                     ->askToStarRepoOnGitHub('backstagephp/ai');
             });
 
+        $package->hasMigrations(
+            '1_create_ai_prompts_table',
+        );
+
         if (file_exists($package->basePath('/../config/backstage/ai.php'))) {
             $package->hasConfigFile('backstage/ai');
         }
