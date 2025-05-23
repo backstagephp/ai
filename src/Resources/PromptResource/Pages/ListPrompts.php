@@ -1,14 +1,14 @@
 <?php
 
-namespace Backstage\AI\Resources\AiPromptResource\Pages;
+namespace Backstage\AI\Resources\PromptResource\Pages;
 
+use Backstage\AI\Resources\PromptResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use Backstage\AI\Resources\AiPromptResource;
 
-class ListAiPrompts extends ListRecords
+class ListPrompts extends ListRecords
 {
-    protected static string $resource = AiPromptResource::class;
+    protected static string $resource = PromptResource::class;
 
     protected function getHeaderActions(): array
     {

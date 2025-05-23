@@ -4,7 +4,7 @@ namespace Backstage\AI;
 
 use Filament\Panel;
 use Filament\Contracts\Plugin;
-use Backstage\AI\Resources\AiPromptResource;
+use Backstage\AI\Resources\PromptResource;
 use Filament\Support\Concerns\EvaluatesClosures;
 
 class AIPlugin implements Plugin
@@ -19,7 +19,7 @@ class AIPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel->resources([
-            AiPromptResource::class,
+            PromptResource::class,
         ]);
     }
 
