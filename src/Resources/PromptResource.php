@@ -22,6 +22,13 @@ class PromptResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getEloquentQuery()
+            ->withGlobalScope('softDeletes', new SoftDeletingScope())
+            ->count();
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -68,7 +75,7 @@ class PromptResource extends Resource
                                 ->columnSpanFull()
                                 ->native(false)
                                 ->placeholder(__('Select an AI model'))
-                                ->options(fn () => collect(config('backstage.ai.providers'))->mapWithKeys(fn ($item, $key) => [ucfirst($key) => $item])),
+                                ->options(fn() => collect(config('backstage.ai.providers'))->mapWithKeys(fn($item, $key) => [ucfirst($key) => $item])),
 
                             Forms\Components\TextInput::make('temperature')
                                 ->numeric()
@@ -92,7 +99,7 @@ class PromptResource extends Resource
                                 ->suffixAction(
                                     Forms\Components\Actions\Action::make('increase')
                                         ->icon('heroicon-o-plus')
-                                        ->action(fn (Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
+                                        ->action(fn(Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
                                 ),
                         ])
                         ->grow(false),
@@ -115,32 +122,7 @@ class PromptResource extends Resource
                     ->label(__('AI model'))
                     ->sortable()
                     ->searchable()
-                    ->formatStateUsing(function ($state) {
-                        $providers = config('backstage.ai.available-models');
-
-                        $providerEnum = $providers[$state] ?? null;
-
-                        if (! $providerEnum) {
-                            return $state;
-                        }
-
-                        /**
-                         * @var Provider|null $origin
-                         */
-                        $origin = $providerEnum['origin'] ?? null;
-
-                        if (! $origin) {
-                            return $state;
-                        }
-
-                        $originName = $origin->name;
-
-                        return str($state)
-                            ->append(' (')
-                            ->append($originName)
-                            ->append(')')
-                            ->toString();
-                    }),
+                    ->formatStateUsing(fn($state): string => str($state)->title()->toString()),
 
             ])
             ->filters([
@@ -150,22 +132,22 @@ class PromptResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->color('gray')
                     ->hiddenLabel()
-                    ->tooltip(fn (Tables\Actions\EditAction $action) => $action->getLabel())
+                    ->tooltip(fn(Tables\Actions\EditAction $action): string => $action->getLabel())
                     ->button(),
 
                 Tables\Actions\DeleteAction::make()
                     ->hiddenLabel()
-                    ->tooltip(fn (Tables\Actions\DeleteAction $action) => $action->getLabel())
+                    ->tooltip(fn(Tables\Actions\DeleteAction $action): string => $action->getLabel())
                     ->button(),
 
                 Tables\Actions\ForceDeleteAction::make()
                     ->hiddenLabel()
-                    ->tooltip(fn (Tables\Actions\ForceDeleteAction $action) => $action->getLabel())
+                    ->tooltip(fn(Tables\Actions\ForceDeleteAction $action): string => $action->getLabel())
                     ->button(),
 
                 Tables\Actions\RestoreAction::make()
                     ->hiddenLabel()
-                    ->tooltip(fn (Tables\Actions\RestoreAction $action) => $action->getLabel())
+                    ->tooltip(fn(Tables\Actions\RestoreAction $action): string => $action->getLabel())
                     ->button(),
             ])
             ->bulkActions([
@@ -177,7 +159,7 @@ class PromptResource extends Resource
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ])
-            ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
+            ->modifyQueryUsing(fn(Builder $query): Builder => $query->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]));
     }

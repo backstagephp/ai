@@ -37,9 +37,7 @@ class EditPrompt extends EditRecord
                 ->form([
                     Placeholder::make('system_prompt')
                         ->label(__('Defined system prompt'))
-                        ->content(fn(): Htmlable => new HtmlString(
-                            '<cite class="text-sm text-gray-500">' . $this->getRecord()->prompt . '</cite>'
-                        )),
+                        ->content(fn(): Htmlable => new HtmlString('<cite class="text-sm text-gray-500">' . $this->getRecord()->prompt . '</cite>')),
 
                     TextInput::make('input')
                         ->label(__('Input'))
@@ -47,24 +45,7 @@ class EditPrompt extends EditRecord
                         ->prefixIcon('heroicon-o-bookmark-square')
                         ->placeholder(__('Enter your input here...')),
                 ])
-                ->action(function (Prompt $record, array $data, Actions\Action $action): void {
-                    $providerKey = collect(config('backstage.ai.providers'))
-                        ->filter(fn($models) => array_key_exists($this->getRecord()->model, $models))
-                        ->keys()
-                        ->first();
-
-                    $provider = Provider::from($providerKey);
-
-                    $response = Prism::text()
-                        ->using($provider, $this->getRecord()->model)
-                        ->withPrompt($data['input'])
-                        ->withSystemPrompt($this->getRecord()->prompt)
-                        ->asText();
-
-                    $this->testResult = $response->text;
-
-                    $this->replaceMountedAction('showResultAction');
-                }),
+                ->action(fn(array $data) => $this->testResultAction($data)),
 
             Actions\DeleteAction::make()
                 ->label(fn(): string => __('Delete'))
@@ -82,7 +63,27 @@ class EditPrompt extends EditRecord
 
     public function getRecordTitle(): string | Htmlable
     {
-        return $this->record?->name ?? __('AI Prompt');
+        return $this->record->name ?? __('AI Prompt');
+    }
+
+    public function testResultAction(array $data): void
+    {
+        $providerKey = collect(config('backstage.ai.providers'))
+            ->filter(fn($models) => array_key_exists($this->getRecord()->model, $models))
+            ->keys()
+            ->first();
+
+        $provider = Provider::from($providerKey);
+
+        $response = Prism::text()
+            ->using($provider, $this->getRecord()->model)
+            ->withPrompt($data['input'])
+            ->withSystemPrompt($this->getRecord()->prompt)
+            ->asText();
+
+        $this->testResult = $response->text;
+
+        $this->replaceMountedAction('showResultAction');
     }
 
     public function showResultAction()
@@ -92,20 +93,14 @@ class EditPrompt extends EditRecord
             ->infolist([
                 TextEntry::make('result')
                     ->label(__('Result'))
-                    ->getStateUsing(fn(): Htmlable => new HtmlString(
-                        '<cite class="text-sm text-gray-500">' . $this->testResult . '</cite>'
-                    ))
+                    ->getStateUsing(fn(): Htmlable => new HtmlString('<cite class="text-sm text-gray-500">' . $this->testResult . '</cite>'))
                     ->hintIcon('heroicon-o-pencil-square')
                     ->hintColor('primary')
             ])
-            ->modalSubmitAction(fn(ACtions\StaticAction $action) => $action->hidden())
+            ->modalSubmitAction(fn(Actions\StaticAction $action) => $action->hidden())
             ->modalCancelActionLabel(__('Close'))
             ->modalFooterActionsAlignment(Alignment::Center)
-            ->modalSubmitAction(function (StaticAction $action) {
-                $action->label(__('Another'));
-            })
-            ->action(function (): void {
-                $this->replaceMountedAction('test_prompt');
-            });
+            ->modalSubmitAction(fn(StaticAction $action) => $action->label(__('Another')))
+            ->action(fn() => $this->replaceMountedAction('test_prompt'));
     }
 }
