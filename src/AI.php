@@ -23,19 +23,23 @@ class AI
     {
         Forms\Components\Field::macro('withAI', function ($prompt = null, $hint = true) {
             return $this->{$hint ? 'hintAction' : 'suffixAction'}(
-                function (Set $set, Forms\Components\Field $component) use ($prompt) {
+                function (Set $set, Forms\Components\Field $component) use ($prompt, $hint) {
                     return Action::make('ai')
-                        ->visible(fn ($operation) => $operation !== 'view')
+                        ->visible(fn($operation) => $operation !== 'view')
                         ->icon(config('backstage.ai.action.icon'))
                         ->label(config('backstage.ai.action.label'))
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
                         ->modalSubmitActionLabel(__('Generate'))
+                        ->extraAttributes($hint ? [
+                            'x-show' => 'focused || hover',
+                            'x-cloak' => '',
+                        ] : [])
                         ->form([
                             Forms\Components\Select::make('model')
                                 ->label(__('AI Model'))
                                 ->options(
                                     collect(config('backstage.ai.providers'))
-                                        ->mapWithKeys(fn (Provider $provider, $model) => [
+                                        ->mapWithKeys(fn(Provider $provider, $model) => [
                                             $model => $model . ' (' . $provider->name . ')',
                                         ]),
                                 )
@@ -68,7 +72,7 @@ class AI
                                         ->suffixAction(
                                             Action::make('increase')
                                                 ->icon('heroicon-o-plus')
-                                                ->action(fn (Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
+                                                ->action(fn(Set $set, Get $get) => $set('max_tokens', $get('max_tokens') + 100)),
                                         ),
                                 ])
                                 ->columns(2)
@@ -107,7 +111,15 @@ class AI
                             }
                         });
                 }
-            );
+            )
+                ->extraFieldWrapperAttributes([
+                    'x-data' => '{focused: false, hover: false}',
+                    'x-on:mouseover' => 'hover = true',
+                    'x-on:mouseout' => 'hover = false',
+                ])->extraInputAttributes([
+                    'x-on:focus' => 'focused = true',
+                    'x-on:blur' => 'focused = false',
+                ]);
         });
     }
 
