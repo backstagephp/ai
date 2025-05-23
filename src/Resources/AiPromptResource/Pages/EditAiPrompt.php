@@ -2,6 +2,7 @@
 
 namespace Backstage\AI\Resources\AiPromptResource\Pages;
 
+use Backstage\AI\Models\AiPrompt;
 use Backstage\AI\Resources\AiPromptResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -14,7 +15,17 @@ class EditAiPrompt extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->label(__('Delete'))
+                ->visible(fn(AiPrompt $record): bool => ! $record->trashed()),
+
+            Actions\ForceDeleteAction::make()
+                ->label(__('Force Delete'))
+                ->visible(fn(AiPrompt $record): bool => $record->trashed()),
+
+            Actions\RestoreAction::make()
+                ->label(__('Restore'))
+                ->visible(fn(AiPrompt $record): bool => $record->trashed()),
         ];
     }
 
