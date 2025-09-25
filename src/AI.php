@@ -2,15 +2,15 @@
 
 namespace Backstage\AI;
 
-use Filament\Forms\Components\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Prism;
 
@@ -26,7 +26,7 @@ class AI
                         ->label(config('backstage.ai.action.label'))
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
                         ->modalSubmitActionLabel('Generate')
-                        ->form([
+                        ->schema([
                             Select::make('model')
                                 ->label('Model')
                                 ->options(
