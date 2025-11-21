@@ -4,7 +4,7 @@ use Prism\Prism\Enums\Provider;
 
 return [
     'providers' => [
-        'gpt-4o-mini' => Provider::OpenAI,
+        'gpt-5.1' => Provider::OpenAI,
     ],
 
     'action' => [
