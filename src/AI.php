@@ -127,11 +127,11 @@ class AI
             ->using(config('backstage.ai.providers.' . $model), $model)
             ->withPrompt($prompt);
 
-            if(str($model)->contains('gpt-5')) {
-                $prism->withProviderOptions([
-                    'reasoning' => ['effort' => 'minimal'],
-                ]);
-            }
+        if (str($model)->contains('gpt-5')) {
+            $prism->withProviderOptions([
+                'reasoning' => ['effort' => 'minimal'],
+            ]);
+        }
 
         return $prism->asText();
     }
