@@ -95,7 +95,7 @@ class AI
         });
     }
 
-    private static function createAIAction(callable $generateCallback, Field $component): Action
+    public static function createAIAction(callable $generateCallback, Field $component): Action
     {
         return Action::make('ai')
             ->icon(config('backstage.ai.action.icon'))
@@ -107,7 +107,7 @@ class AI
             });
     }
 
-    private static function handleAIGeneration(callable $generateCallback, Field $component, Set $set): void
+    public static function handleAIGeneration(callable $generateCallback, Field $component, Set $set): void
     {
         try {
             $response = $generateCallback();
@@ -121,7 +121,7 @@ class AI
         }
     }
 
-    private static function generateText(string $prompt, string $model)
+    public static function generateText(string $prompt, string $model)
     {
         return Prism::text()
             ->using(config('backstage.ai.providers.' . $model), $model)
