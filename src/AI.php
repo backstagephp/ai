@@ -12,16 +12,29 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Prism\Prism\Exceptions\PrismException;
-use Prism\Prism\Prism;
+use Prism\Prism\Facades\Prism;
 
 class AI
 {
     public static function registerMacro(): void
     {
         Field::macro('withAI', function ($prompt = null) {
+            if (is_callable($prompt)) {
+                return $this->hintAction(
+                    function (Set $set, Field $component) use ($prompt) {
+                        return self::createAIAction(function (Get $get, Set $set) use ($prompt, $component) {
+                            $generatedPrompt = $prompt($component, $get, $set);
+                            $model = key(config('backstage.ai.providers'));
+
+                            return self::generateText($generatedPrompt, $model);
+                        }, $component);
+                    }
+                );
+            }
+
             return $this->hintAction(
                 function (Set $set, Field $component) use ($prompt) {
-                    return Action::make('ai')
+                    $action = Action::make('ai')
                         ->icon(config('backstage.ai.action.icon'))
                         ->label(config('backstage.ai.action.label'))
                         ->modalHeading(config('backstage.ai.action.modal.heading'))
@@ -71,23 +84,48 @@ class AI
                                 ->collapsible(),
                         ])
                         ->action(function ($data) use ($component, $set) {
-                            try {
-                                $response = Prism::text()
-                                    ->using(config('backstage.ai.providers.' . $data['model']), $data['model'])
-                                    ->withPrompt($data['prompt'])
-                                    ->asText();
-
-                                $set($component->getName(), $response->text);
-                            } catch (PrismException $exception) {
-                                Notification::make()
-                                    ->title('Text generation failed')
-                                    ->body('Error: ' . $exception->getMessage())
-                                    ->danger()
-                                    ->send();
-                            }
+                            self::handleAIGeneration(function () use ($data) {
+                                return self::generateText($data['prompt'], $data['model']);
+                            }, $component, $set);
                         });
+
+                    return $action;
                 }
             );
         });
+    }
+
+    private static function createAIAction(callable $generateCallback, Field $component): Action
+    {
+        return Action::make('ai')
+            ->icon(config('backstage.ai.action.icon'))
+            ->label(config('backstage.ai.action.label'))
+            ->action(function (Get $get, Set $set) use ($generateCallback, $component) {
+                self::handleAIGeneration(function () use ($generateCallback, $get, $set) {
+                    return $generateCallback($get, $set);
+                }, $component, $set);
+            });
+    }
+
+    private static function handleAIGeneration(callable $generateCallback, Field $component, Set $set): void
+    {
+        try {
+            $response = $generateCallback();
+            $set($component->getName(), $response->text);
+        } catch (PrismException $exception) {
+            Notification::make()
+                ->title('Text generation failed')
+                ->body('Error: ' . $exception->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    private static function generateText(string $prompt, string $model)
+    {
+        return Prism::text()
+            ->using(config('backstage.ai.providers.' . $model), $model)
+            ->withPrompt($prompt)
+            ->asText();
     }
 }
