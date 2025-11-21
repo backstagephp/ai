@@ -22,11 +22,11 @@ class AI
             if (is_callable($prompt)) {
                 return $this->hintAction(
                     function (Set $set, Field $component) use ($prompt) {
-                        return self::createAIAction(function (Get $get, Set $set) use ($prompt, $component) {
+                        return AI::createAIAction(function (Get $get, Set $set) use ($prompt, $component) {
                             $generatedPrompt = $prompt($component, $get, $set);
                             $model = key(config('backstage.ai.providers'));
 
-                            return self::generateText($generatedPrompt, $model);
+                            return AI::generateText($generatedPrompt, $model);
                         }, $component);
                     }
                 );
@@ -84,8 +84,8 @@ class AI
                                 ->collapsible(),
                         ])
                         ->action(function ($data) use ($component, $set) {
-                            self::handleAIGeneration(function () use ($data) {
-                                return self::generateText($data['prompt'], $data['model']);
+                            AI::handleAIGeneration(function () use ($data) {
+                                return AI::generateText($data['prompt'], $data['model']);
                             }, $component, $set);
                         });
 
@@ -101,7 +101,7 @@ class AI
             ->icon(config('backstage.ai.action.icon'))
             ->label(config('backstage.ai.action.label'))
             ->action(function (Get $get, Set $set) use ($generateCallback, $component) {
-                self::handleAIGeneration(function () use ($generateCallback, $get, $set) {
+                AI::handleAIGeneration(function () use ($generateCallback, $get, $set) {
                     return $generateCallback($get, $set);
                 }, $component, $set);
             });
