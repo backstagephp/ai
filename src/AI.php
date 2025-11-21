@@ -126,6 +126,9 @@ class AI
         return Prism::text()
             ->using(config('backstage.ai.providers.' . $model), $model)
             ->withPrompt($prompt)
+            ->withProviderOptions([
+                'reasoning' => ['effort' => 'minimal'],
+            ])
             ->asText();
     }
 }
