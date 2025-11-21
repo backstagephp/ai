@@ -1,0 +1,77 @@
+{
+    "name": "backstage/ai",
+    "description": "Add a generative and assisting AI to your Filament app forms and fields.",
+    "keywords": [
+        "backstage",
+        "laravel",
+        "ai"
+    ],
+    "homepage": "https://github.com/backstagephp/ai",
+    "support": {
+        "issues": "https://github.com/backstagephp/ai/issues",
+        "source": "https://github.com/backstagephp/ai"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mark van Eijk",
+            "email": "mark@backstagephp.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "echolabsdev/prism": ">=0.65.1",
+        "filament/forms": "^4.0",
+        "spatie/laravel-package-tools": "^1.15.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.0",
+        "nunomaduro/collision": "^8.0",
+        "larastan/larastan": "^3.0",
+        "orchestra/testbench": "^9.9",
+        "pestphp/pest": "^3.7",
+        "pestphp/pest-plugin-arch": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Backstage\\AI\\": "src/",
+            "Backstage\\AI\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Backstage\\AI\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Backstage\\AI\\AIServiceProvider"
+            ],
+            "aliases": {
+                "AI": "Backstage\\AI\\Facades\\AI"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
