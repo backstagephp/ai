@@ -123,12 +123,16 @@ class AI
 
     public static function generateText(string $prompt, string $model)
     {
-        return Prism::text()
+        $prism = Prism::text()
             ->using(config('backstage.ai.providers.' . $model), $model)
-            ->withPrompt($prompt)
-            ->withProviderOptions([
-                'reasoning' => ['effort' => 'minimal'],
-            ])
-            ->asText();
+            ->withPrompt($prompt);
+
+            if(str($model)->contains('gpt-5')) {
+                $prism->withProviderOptions([
+                    'reasoning' => ['effort' => 'minimal'],
+                ]);
+            }
+
+        return $prism->asText();
     }
 }
