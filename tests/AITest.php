@@ -1,13 +1,13 @@
 <?php
 
 use Backstage\AI\AI;
+use Prism\Prism\Enums\FinishReason;
 use Prism\Prism\Enums\Provider;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Facades\Prism;
 use Prism\Prism\Text\Response;
-use Prism\Prism\ValueObjects\Usage;
 use Prism\Prism\ValueObjects\Meta;
-use Prism\Prism\Enums\FinishReason;
+use Prism\Prism\ValueObjects\Usage;
 
 function setupAIConfig(): void
 {
