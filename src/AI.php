@@ -123,13 +123,20 @@ class AI
 
     public static function generateText(string $prompt, string $model)
     {
+        $providers = config('backstage.ai.providers', []);
+        $provider = $providers[$model] ?? null;
+
+        if ($provider === null) {
+            throw new PrismException("AI provider not configured for model: {$model}. Please configure 'backstage.ai.providers.{$model}' in your config.");
+        }
+
         $prism = Prism::text()
-            ->using(config('backstage.ai.providers.' . $model), $model)
+            ->using($provider, $model)
             ->withPrompt($prompt);
 
         if (str($model)->contains('gpt-5')) {
             $prism->withProviderOptions([
-                'reasoning' => ['effort' => 'minimal'],
+                'reasoning' => ['effort' => 'low'],
             ]);
         }
 

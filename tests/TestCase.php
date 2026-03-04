@@ -3,20 +3,9 @@
 namespace Backstage\AI\Tests;
 
 use Backstage\AI\AIServiceProvider;
-use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
-use BladeUI\Icons\BladeIconsServiceProvider;
-use Filament\Actions\ActionsServiceProvider;
-use Filament\FilamentServiceProvider;
-use Filament\Forms\FormsServiceProvider;
-use Filament\Infolists\InfolistsServiceProvider;
-use Filament\Notifications\NotificationsServiceProvider;
-use Filament\Support\SupportServiceProvider;
-use Filament\Tables\TablesServiceProvider;
-use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
-use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
+use Prism\Prism\PrismServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -32,18 +21,7 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
-            ActionsServiceProvider::class,
-            BladeCaptureDirectiveServiceProvider::class,
-            BladeHeroiconsServiceProvider::class,
-            BladeIconsServiceProvider::class,
-            FilamentServiceProvider::class,
-            FormsServiceProvider::class,
-            InfolistsServiceProvider::class,
-            LivewireServiceProvider::class,
-            NotificationsServiceProvider::class,
-            SupportServiceProvider::class,
-            TablesServiceProvider::class,
-            WidgetsServiceProvider::class,
+            PrismServiceProvider::class,
             AIServiceProvider::class,
         ];
     }
@@ -51,5 +29,29 @@ class TestCase extends Orchestra
     public function getEnvironmentSetUp($app)
     {
         config()->set('database.default', 'testing');
+
+        // Set up AI config for testing
+        config()->set('backstage.ai.providers', [
+            'gpt-5.1' => 'openai',
+        ]);
+
+        config()->set('backstage.ai.action', [
+            'label' => 'AI',
+            'icon' => 'heroicon-o-sparkles',
+            'modal' => [
+                'heading' => 'Generate with AI',
+            ],
+        ]);
+
+        config()->set('backstage.ai.configuration', [
+            'max_tokens' => 100,
+            'temperature' => 0.7,
+        ]);
+
+        // Set up Prism config for testing
+        config()->set('prism.providers.openai', [
+            'url' => 'https://api.openai.com/v1',
+            'api_key' => 'test-key',
+        ]);
     }
 }
