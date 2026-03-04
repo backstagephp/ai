@@ -136,7 +136,7 @@ class AI
 
         if (str($model)->contains('gpt-5')) {
             $prism->withProviderOptions([
-                'reasoning' => ['effort' => 'minimal'],
+                'reasoning' => ['effort' => 'low'],
             ]);
         }
 
