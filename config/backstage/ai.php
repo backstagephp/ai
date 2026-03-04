@@ -1,10 +1,20 @@
 <?php
 
-use Prism\Prism\Enums\Provider;
-
 return [
+    /*
+    |--------------------------------------------------------------------------
+    | AI Providers
+    |--------------------------------------------------------------------------
+    |
+    | Configure your AI providers here. The key is the model name and the value
+    | is the provider string that maps to Prism\Prism\Enums\Provider.
+    |
+    | Available providers: 'anthropic', 'deepseek', 'ollama', 'openai',
+    | 'openrouter', 'mistral', 'groq', 'xai', 'gemini', 'voyageai', 'elevenlabs'
+    |
+    */
     'providers' => [
-        'gpt-5.1' => Provider::OpenAI,
+        'gpt-5.1' => 'openai',
     ],
 
     'action' => [
