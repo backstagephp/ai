@@ -5,6 +5,7 @@ use Prism\Prism\Enums\FinishReason;
 use Prism\Prism\Enums\Provider;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Facades\Prism;
+use Prism\Prism\Text\PendingRequest;
 use Prism\Prism\Text\Response;
 use Prism\Prism\ValueObjects\Meta;
 use Prism\Prism\ValueObjects\Usage;
@@ -37,9 +38,9 @@ function setupAIConfig(): void
 
 it('has correct prism namespace configuration', function () {
     // Verify the Prism facade exists with correct namespace
-    expect(class_exists(\Prism\Prism\Facades\Prism::class))->toBeTrue();
-    expect(enum_exists(\Prism\Prism\Enums\Provider::class))->toBeTrue();
-    expect(class_exists(\Prism\Prism\Exceptions\PrismException::class))->toBeTrue();
+    expect(class_exists(Prism::class))->toBeTrue();
+    expect(enum_exists(Provider::class))->toBeTrue();
+    expect(class_exists(PrismException::class))->toBeTrue();
 });
 
 it('can retrieve provider from config as string', function () {
@@ -65,7 +66,7 @@ it('can create prism text request with string provider', function () {
         ->using($provider, $model)
         ->withPrompt('Test prompt');
 
-    expect($pendingRequest)->toBeInstanceOf(\Prism\Prism\Text\PendingRequest::class);
+    expect($pendingRequest)->toBeInstanceOf(PendingRequest::class);
     expect($pendingRequest->model())->toBe('gpt-5.1');
     expect($pendingRequest->providerKey())->toBe('openai');
 });
