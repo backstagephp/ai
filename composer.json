@@ -22,7 +22,7 @@
     "require": {
         "php": "^8.1",
         "backstage/laravel-ai": "self.version",
-        "filament/forms": "^4.0",
+        "filament/forms": "^5.0",
         "spatie/laravel-package-tools": "^1.15.0"
     },
     "require-dev": {
