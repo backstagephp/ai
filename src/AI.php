@@ -23,7 +23,7 @@ class AI
                 return $this->hintAction(
                     function (Set $set, Field $component) use ($prompt) {
                         return AI::createAIAction(function (Get $get, Set $set) use ($prompt, $component) {
-                            $generatedPrompt = $prompt($component, $get, $set);
+                            $generatedPrompt = AI::callPrompt($prompt, $get, $set, $component);
                             $model = key(config('backstage.ai.providers'));
 
                             return AI::generateText($generatedPrompt, $model);
@@ -93,6 +93,18 @@ class AI
                 }
             );
         });
+    }
+
+    /**
+     * The utilities go first because that is what a prompt actually reads, and
+     * PHP lets a closure declare only the arguments it wants, so
+     * `function (Get $get)` stays valid while a closure that needs the field
+     * can take all three. Flipping this order is what broke the SEO buttons:
+     * the field arrived where the closure expected a Get.
+     */
+    public static function callPrompt(callable $prompt, Get $get, Set $set, Field $component): string
+    {
+        return $prompt($get, $set, $component);
     }
 
     public static function createAIAction(callable $generateCallback, Field $component): Action

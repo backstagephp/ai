@@ -1,6 +1,9 @@
 <?php
 
 use Backstage\AI\AI;
+use Filament\Forms\Components\Textarea;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Prism\Prism\Enums\FinishReason;
 use Prism\Prism\Enums\Provider;
 use Prism\Prism\Exceptions\PrismException;
@@ -131,4 +134,38 @@ it('uses correct prism imports in AI class', function () {
 
     // Verify old namespace is not used
     expect($content)->not->toContain('EchoLabs\Prism');
+});
+
+// The SEO buttons in backstage/cms declare their prompt as function (Get $get),
+// so the field must never arrive in the first argument.
+it('calls a prompt closure with the utilities before the field', function () {
+    $component = Textarea::make('meta_tags.description');
+    $get = new Get($component);
+    $set = new Set($component);
+
+    $received = [];
+
+    $result = AI::callPrompt(function (...$arguments) use (&$received) {
+        $received = $arguments;
+
+        return 'prompt';
+    }, $get, $set, $component);
+
+    expect($result)->toBe('prompt')
+        ->and($received[0])->toBeInstanceOf(Get::class)
+        ->and($received[1])->toBeInstanceOf(Set::class)
+        ->and($received[2])->toBe($component);
+});
+
+it('accepts a prompt closure that only declares the get utility', function () {
+    $component = Textarea::make('meta_tags.title');
+
+    $prompt = AI::callPrompt(
+        fn (Get $get) => 'only get',
+        new Get($component),
+        new Set($component),
+        $component,
+    );
+
+    expect($prompt)->toBe('only get');
 });
