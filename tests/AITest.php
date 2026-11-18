@@ -169,3 +169,15 @@ it('accepts a prompt closure that only declares the get utility', function () {
 
     expect($prompt)->toBe('only get');
 });
+
+it('names a provider configured as an enum', function () {
+    expect(AI::providerName(Provider::OpenAI))->toBe('OpenAI');
+});
+
+it('names a provider configured as a string', function () {
+    expect(AI::providerName('openai'))->toBe('OpenAI');
+});
+
+it('falls back to the configured string for a provider prism does not know', function () {
+    expect(AI::providerName('my-proxy'))->toBe('my-proxy');
+});

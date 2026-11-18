@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Prism\Prism\Enums\Provider;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Facades\Prism;
 
@@ -45,15 +46,17 @@ class AI
                                 ->options(
                                     collect(config('backstage.ai.providers'))
                                         ->mapWithKeys(fn ($provider, $model) => [
-                                            $model => $model . ' (' . $provider->name . ')',
+                                            $model => $model . ' (' . AI::providerName($provider) . ')',
                                         ]),
                                 )
-                                ->default(key(config('backstage.ai.providers'))),
+                                ->default(key(config('backstage.ai.providers')))
+                                ->required(),
 
                             Textarea::make('prompt')
                                 ->label('Prompt')
                                 ->autosize()
-                                ->default($prompt),
+                                ->default($prompt)
+                                ->required(),
 
                             Section::make('configuration')
                                 ->heading('Configuration')
@@ -105,6 +108,15 @@ class AI
     public static function callPrompt(callable $prompt, Get $get, Set $set, Field $component): string
     {
         return $prompt($get, $set, $component);
+    }
+
+    public static function providerName(Provider | string $provider): string
+    {
+        if ($provider instanceof Provider) {
+            return $provider->name;
+        }
+
+        return Provider::tryFrom($provider)?->name ?? $provider;
     }
 
     public static function createAIAction(callable $generateCallback, Field $component): Action
