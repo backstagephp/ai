@@ -4,7 +4,11 @@ namespace Backstage\AI\Tests\Fixtures;
 
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
@@ -27,6 +31,24 @@ class AIForm extends Component implements HasActions, HasSchemas
         return $schema
             ->components([
                 Textarea::make('description')->withAI(),
+
+                RichEditor::make('body')->withAI(),
+
+                RichEditor::make('document')->json()->withAI(),
+
+                MarkdownEditor::make('markdown')->withAI(),
+
+                TextInput::make('title')
+                    ->maxLength(60)
+                    ->withAI(fn (Get $get) => 'Write a title for: ' . $get('description')),
+
+                Textarea::make('note')->withAI(context: 'An internal note about a customer.'),
+
+                Textarea::make('dynamic')->withAI(context: fn (Get $get) => 'A summary of ' . $get('title')),
+
+                Textarea::make('summary')->withAI('Summarise the text'),
+
+                Textarea::make('copied')->withAI('Copy'),
             ])
             ->statePath('data');
     }

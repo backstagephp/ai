@@ -25,6 +25,11 @@ class AIServiceProvider extends PackageServiceProvider
             $package->hasConfigFile('backstage/ai');
         }
 
+        if (file_exists($package->basePath('/../resources/lang'))) {
+            $package->hasTranslations();
+            $this->loadJsonTranslationsFrom($package->basePath('/../resources/lang'));
+        }
+
         if (file_exists($package->basePath('/../resources/views'))) {
             $package->hasViews(static::$viewNamespace);
         }

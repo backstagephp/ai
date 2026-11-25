@@ -25,8 +25,19 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Generation defaults
+    |--------------------------------------------------------------------------
+    |
+    | The defaults of the "Configuration" section in the AI modal. Both values
+    | are sent to the model. An answer that does not fit within max_tokens is
+    | not written to the field, so keep this roomy enough for the longest text
+    | you expect. Temperature is left out for models that reject it.
+    |
+    */
     'configuration' => [
-        'max_tokens' => 100,
+        'max_tokens' => 1000,
         'temperature' => 0.7,
     ],
 ];
