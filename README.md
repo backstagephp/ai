@@ -93,8 +93,10 @@ Images, tables and custom blocks in a rich editor do not survive a rewrite.
 
 The field is **not** changed, and the user gets a warning, when:
 
-- the model had nothing to work with (it answers `NO_OUTPUT`, for instance for "rewrite this" on an empty field), or
+- the field is empty and the instruction gives nothing to write from (the model answers `NO_OUTPUT`, for instance for "rewrite this" on an empty field), or
 - the answer was cut off by the token limit.
+
+A field that holds text always gets an answer. The model is then not offered `NO_OUTPUT`: it applies the instruction as far as it goes, keeps a short text short, and returns the text unchanged when the instruction asks nothing of it.
 
 ### Temperature and token limit
 

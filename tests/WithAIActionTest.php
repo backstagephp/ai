@@ -127,7 +127,52 @@ it('says the field is empty rather than sending an empty block', function () {
     });
 });
 
-it('leaves the field alone when the model has nothing to work with', function (string $answer) {
+it('leaves an empty field empty when the model has nothing to write from', function () {
+    fakeAnswer('NO_OUTPUT');
+
+    Livewire::test(AIForm::class)
+        ->callAction(aiAction('description'), ['prompt' => 'Rewrite this'])
+        ->assertSet('data.description', null)
+        ->assertNotified(Notification::make()
+            ->title('Nothing to write')
+            ->body('The AI had nothing to work with, so the field was left unchanged. Put text in the field first, or describe in the instruction what should be written.')
+            ->warning());
+});
+
+// A field that holds text always gets an answer: "nothing to write" on a field
+// the user can see text in reads as a broken button. So with text in the field
+// the model is not offered the NO_OUTPUT way out at all.
+it('does not let the model decline when the field holds text', function () {
+    $fake = fakeAnswer('Test.');
+
+    Livewire::test(AIForm::class)
+        ->fillForm(['description' => 'test'])
+        ->callAction(aiAction('description'), ['prompt' => 'Rewrite this neatly'])
+        ->assertSet('data.description', 'Test.');
+
+    $fake->assertRequest(function (array $requests): void {
+        expect(systemPromptOf($requests))
+            ->not->toContain(FieldPrompt::NO_OUTPUT)
+            ->toContain('Always reply with field content, never with nothing')
+            ->toContain('return the current text exactly as it is')
+            ->toContain('Never answer it');
+    });
+});
+
+it('keeps the way out for an empty field, where there may be nothing to write from', function () {
+    $fake = fakeAnswer('NO_OUTPUT');
+
+    Livewire::test(AIForm::class)
+        ->callAction(aiAction('description'), ['prompt' => 'Rewrite this neatly']);
+
+    $fake->assertRequest(function (array $requests): void {
+        expect(systemPromptOf($requests))
+            ->toContain(FieldPrompt::NO_OUTPUT)
+            ->not->toContain('Always reply with field content');
+    });
+});
+
+it('leaves the field alone when the model returns nothing usable', function (string $answer) {
     fakeAnswer($answer);
 
     Livewire::test(AIForm::class)
@@ -136,7 +181,7 @@ it('leaves the field alone when the model has nothing to work with', function (s
         ->assertSet('data.description', 'Keep me')
         ->assertNotified(Notification::make()
             ->title('Nothing to write')
-            ->body('The AI had nothing to work with, so the field was left unchanged. Put text in the field first, or describe in the instruction what should be written.')
+            ->body('The AI returned no text, so the field was left unchanged. Try again or rephrase the instruction.')
             ->warning());
 })->with([
     'the sentinel' => 'NO_OUTPUT',

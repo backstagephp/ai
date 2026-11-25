@@ -12,6 +12,7 @@
     "Temperature": "Temperatuur",
     "Text generation failed": "Tekst genereren mislukt",
     "The AI had nothing to work with, so the field was left unchanged. Put text in the field first, or describe in the instruction what should be written.": "De AI had niets om mee te werken, dus het veld is niet gewijzigd. Zet eerst tekst in het veld, of beschrijf in de instructie wat er geschreven moet worden.",
+    "The AI returned no text, so the field was left unchanged. Try again or rephrase the instruction.": "De AI gaf geen tekst terug, dus het veld is niet gewijzigd. Probeer het opnieuw of formuleer de instructie anders.",
     "The answer did not fit within the maximum number of tokens, so the field was left unchanged. Raise \"Max tokens\" and try again.": "Het antwoord paste niet binnen het maximale aantal tokens, dus het veld is niet gewijzigd. Verhoog \"Max. tokens\" en probeer het opnieuw.",
     "The current text of this field is sent to the AI provider and replaced by the result.": "De huidige tekst van dit veld wordt naar de AI-provider gestuurd en vervangen door het resultaat.",
     "The higher the temperature, the more creative the text. Ignored by models that do not support it.": "Hoe hoger de temperatuur, hoe creatiever de tekst. Wordt genegeerd door modellen die dit niet ondersteunen.",

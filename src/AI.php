@@ -147,13 +147,16 @@ class AI
             ])
             ->action(function (array $data, Set $set) use ($component, $context) {
                 AI::handleAIGeneration(function () use ($data, $component, $context) {
+                    $currentText = FieldContent::read($component);
+
                     return AI::generateForField(
                         $component,
-                        FieldPrompt::user($data['prompt'], FieldContent::read($component)),
+                        FieldPrompt::user($data['prompt'], $currentText),
                         $data['model'],
                         $context,
                         filled($data['temperature'] ?? null) ? (float) $data['temperature'] : null,
                         filled($data['max_tokens'] ?? null) ? (int) $data['max_tokens'] : null,
+                        ! FieldContent::isBlank($currentText),
                     );
                 }, $component, $set);
             });
@@ -194,7 +197,9 @@ class AI
         if ($content === null) {
             Notification::make()
                 ->title(__('Nothing to write'))
-                ->body(__('The AI had nothing to work with, so the field was left unchanged. Put text in the field first, or describe in the instruction what should be written.'))
+                ->body(FieldContent::isBlank(FieldContent::read($component))
+                    ? __('The AI had nothing to work with, so the field was left unchanged. Put text in the field first, or describe in the instruction what should be written.')
+                    : __('The AI returned no text, so the field was left unchanged. Try again or rephrase the instruction.'))
                 ->warning()
                 ->send();
 
@@ -206,7 +211,9 @@ class AI
 
     /**
      * Generates content for one field: the model is told it is filling that
-     * field, in the format the field stores, and what the field is for.
+     * field, in the format the field stores, and what the field is for. Pass
+     * $hasCurrentText when the prompt carries the field's own text, so the
+     * model is told to always answer instead of being allowed to decline.
      */
     public static function generateForField(
         Field $component,
@@ -215,6 +222,7 @@ class AI
         string | Closure | null $context = null,
         ?float $temperature = null,
         ?int $maxTokens = null,
+        bool $hasCurrentText = false,
     ) {
         $maxLength = method_exists($component, 'getMaxLength') ? $component->getMaxLength() : null;
 
@@ -225,6 +233,7 @@ class AI
                 ContentFormat::fromField($component),
                 $component->evaluate($context),
                 is_numeric($maxLength) ? (int) $maxLength : null,
+                $hasCurrentText,
             ),
             $temperature,
             $maxTokens,

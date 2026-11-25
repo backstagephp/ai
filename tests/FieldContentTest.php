@@ -149,3 +149,20 @@ it('makes a markdown list from a plain answer into a real list', function () {
     expect(FieldContent::clean("- One\n- Two", ContentFormat::Html))
         ->toBe('<ul><li>One</li><li>Two</li></ul>');
 });
+
+it('has rules without a way out for a field that holds text', function () {
+    $prompt = FieldPrompt::system(ContentFormat::Html, 'A note.', null, true);
+
+    expect($prompt)
+        ->not->toContain(FieldPrompt::NO_OUTPUT)
+        ->toContain('Always reply with field content, never with nothing')
+        ->toContain('keep your reply just as small')
+        ->toContain('Format: HTML.')
+        ->toContain('About this field: A note.');
+});
+
+it('keeps the way out in the rules for an empty field', function () {
+    expect(FieldPrompt::system(ContentFormat::Html))
+        ->toContain('Reply with exactly ' . FieldPrompt::NO_OUTPUT)
+        ->not->toContain('Always reply with field content');
+});
